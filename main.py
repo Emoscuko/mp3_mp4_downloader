@@ -5,7 +5,6 @@ import threading
 
 def progress_hook(d):
     if d['status'] == 'downloading':
-        # Yüzdeyi al ve barı güncelle
         p = d.get('_percent_str', '0%').replace('%','')
         try:
             progress_bar['value'] = float(p)
@@ -13,11 +12,12 @@ def progress_hook(d):
         except:
             pass
     elif d['status'] == 'finished':
-        status_label.config(text="Dönüştürülüyor... Lütfen bekleyin.")
+        status_label.config(text="İşlem tamamlanıyor... Lütfen bekleyin.")
 
 def indir():
     url = entry_url.get()
     format_secimi = secim.get()
+    kalite_secimi = combo_kalite.get()
     
     if not url:
         messagebox.showwarning("Hata", "Lütfen bir link girin!")
@@ -31,6 +31,14 @@ def indir():
     
     def download_thread():
         try:
+            # Kalite ayarını belirle
+            if kalite_secimi == "En Yüksek":
+                video_format = "bestvideo+bestaudio/best"
+            else:
+                # Seçilen çözünürlüğü ve altındakileri ara
+                res = kalite_secimi.replace("p", "")
+                video_format = f"bestvideo[height<={res}]+bestaudio/best[height<={res}]"
+
             common_opts = {
                 'outtmpl': f'{klasor}/%(title)s.%(ext)s',
                 'progress_hooks': [progress_hook],
@@ -42,7 +50,7 @@ def indir():
                     'postprocessors': [{'key': 'FFmpegExtractAudio','preferredcodec': 'mp3','preferredquality': '192'}],
                 })
             else:
-                common_opts.update({'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'})
+                common_opts.update({'format': video_format})
 
             with yt_dlp.YoutubeDL(common_opts) as ydl:
                 ydl.download([url])
@@ -50,28 +58,37 @@ def indir():
             messagebox.showinfo("Başarılı", "İşlem tamamlandı!")
             status_label.config(text="Hazır.")
         except Exception as e:
-            messagebox.showerror("Hata", str(e))
+            messagebox.showerror("Hata", f"Hata: {str(e)}")
         finally:
             btn_indir.config(state="normal")
 
     threading.Thread(target=download_thread).start()
 
-# --- UI ---
+# --- Arayüz ---
 root = tk.Tk()
-root.title("YouTube Downloader Pro")
-root.geometry("500x350")
+root.title("YouTube Downloader Ultra")
+root.geometry("500x400")
 
 tk.Label(root, text="YouTube URL:", font=("Arial", 10, "bold")).pack(pady=10)
 entry_url = tk.Entry(root, width=60)
 entry_url.pack(pady=5)
 
-secim = tk.StringVar(value="mp3")
-frame_radio = tk.Frame(root)
-frame_radio.pack(pady=10)
-tk.Radiobutton(frame_radio, text="MP3 (Ses)", variable=secim, value="mp3").pack(side="left", padx=20)
-tk.Radiobutton(frame_radio, text="MP4 (Video)", variable=secim, value="mp4").pack(side="left", padx=20)
+# Format ve Kalite Çerçevesi
+frame_options = tk.Frame(root)
+frame_options.pack(pady=10)
 
-btn_indir = tk.Button(root, text="İNDİR", bg="#c4302b", fg="white", font=("Arial", 12, "bold"), width=20, command=indir)
+# Format Seçimi
+secim = tk.StringVar(value="mp3")
+tk.Radiobutton(frame_options, text="MP3", variable=secim, value="mp3").grid(row=0, column=0, padx=20)
+tk.Radiobutton(frame_options, text="MP4", variable=secim, value="mp4").grid(row=0, column=1, padx=20)
+
+# Kalite Seçimi (Dropdown)
+tk.Label(root, text="Video Kalitesi (Sadece MP4 için):").pack()
+combo_kalite = ttk.Combobox(root, values=["360p", "480p", "720p", "1080p", "En Yüksek"], state="readonly")
+combo_kalite.set("1080p")
+combo_kalite.pack(pady=5)
+
+btn_indir = tk.Button(root, text="İNDİRMEYİ BAŞLAT", bg="#c4302b", fg="white", font=("Arial", 12, "bold"), width=25, command=indir)
 btn_indir.pack(pady=20)
 
 progress_bar = ttk.Progressbar(root, orient="horizontal", length=400, mode="determinate")
