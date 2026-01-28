@@ -2,6 +2,11 @@ import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import yt_dlp
 import threading
+import shutil
+
+def check_ffmpeg():
+    """Returns True if ffmpeg is found in the system path."""
+    return shutil.which("ffmpeg") is not None
 
 def progress_hook(d):
     if d['status'] == 'downloading':
@@ -22,7 +27,16 @@ def indir():
     if not url:
         messagebox.showwarning("Hata", "Lütfen bir link girin!")
         return
-
+    
+    # --- FFmpeg Check ---
+    if not check_ffmpeg():
+        messagebox.showerror("Eksik Yazılım", 
+            "FFmpeg bilgisayarınızda bulunamadı!\n\n"
+            "MP3 dönüştürme ve yüksek kalite MP4 birleştirme için "
+            "FFmpeg gereklidir. Lütfen 'brew install ffmpeg' komutu ile yükleyin.")
+        return
+    # --------------------
+    
     klasor = filedialog.askdirectory()
     if not klasor: return
 
