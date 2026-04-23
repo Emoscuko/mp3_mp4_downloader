@@ -57,8 +57,17 @@ sudo dnf install python3-tkinter ffmpeg
    .venv\Scripts\activate
    ```
 
+   On macOS, if `python3 --version` shows Apple's Python 3.9, create the venv with Homebrew Python instead:
+   ```bash
+   deactivate  # only if an old venv is active
+   mv .venv .venv-py39-backup  # only if .venv was already created with Python 3.9
+   /opt/homebrew/bin/python3.14 -m venv .venv
+   source .venv/bin/activate
+   ```
+
 2. Install Python requirements:
    ```bash
+   python -m pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
@@ -66,6 +75,11 @@ sudo dnf install python3-tkinter ffmpeg
    ```bash
    python main.py
    ```
+
+### One-click launch on macOS
+
+After cloning the project, double-click `Run Downloader.command`.
+It prepares `.venv` with Homebrew Python 3.10+, installs requirements when needed, and starts the app.
 
 ## Quality Behavior
 - **Video / En Yüksek** uses the best video and best audio streams available, merged into MP4 when needed.
