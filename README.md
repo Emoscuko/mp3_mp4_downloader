@@ -1,45 +1,52 @@
-# YouTube Downloader Ultra
+# Multi Platform Media Downloader
 
-A lightweight, multi-format YouTube downloader built with Python and Tkinter, powered by `yt-dlp`.
+A lightweight desktop downloader for YouTube, Instagram, and TikTok links, built with Python, Tkinter, and `yt-dlp`.
 
 ## Features
-- Download as **MP3** (Automatic audio extraction)
-- Download as **MP4** (Selectable qualities from 360p to 1080p and "Best")
-- Real-time progress bar and status updates
-- Simple and modern UI
+- Detects **YouTube**, **Instagram**, and **TikTok** links automatically.
+- Downloads **MP3 audio** with selectable output quality.
+- Downloads **MP4 video** with selectable resolution from 360p up to 2160p, plus **En Yüksek** for the best available quality.
+- Exports **YouTube transcripts** as `.txt` using manual subtitles first, then automatic captions.
+- Shows a platform badge, save folder selector, progress bar, and live status updates.
 
-## Prerequisites & Installation
+## Support Notes
+- Only public, non-login content is supported in this version.
+- Batch downloads, playlists, private posts, and cookie/login flows are out of scope.
+- Instagram and TikTok availability can change when platforms update their pages or APIs. The app surfaces those failures as normal download errors from `yt-dlp`.
+- Transcript export is intentionally YouTube-only.
 
-The application requires **Python 3.x**, **Tkinter**, and **FFmpeg**.
+## Prerequisites
 
-### 🍏 macOS (Homebrew)
-Install the dependencies using [Homebrew](https://brew.sh/):
+The application requires **Python 3.10+**, **Tkinter**, and **FFmpeg**.
+FFmpeg is required for MP3 conversion and MP4 merging. Transcript export does not require FFmpeg.
+
+### macOS (Homebrew)
 ```bash
 brew install python-tk@3.14
 brew install ffmpeg
 ```
 
-### 🪟 Windows
-1.  **Python:** Download and install from [python.org](https://www.python.org/). During installation, ensure you check **"Add Python to PATH"** and **"tcl/tk and IDLE"**.
-2.  **FFmpeg:**
-    - Download the "essentials" build from [gyan.dev](https://www.gyan.dev/ffmpeg/builds/).
-    - Extract the folder, and add the `bin` directory (e.g., `C:\ffmpeg\bin`) to your **System Environment Variables (PATH)**.
-    - Verify with `ffmpeg -version` in PowerShell/CMD.
+### Windows
+1. Install Python from [python.org](https://www.python.org/). During installation, enable **Add Python to PATH** and **tcl/tk and IDLE**.
+2. Install FFmpeg:
+   - Download the "essentials" build from [gyan.dev](https://www.gyan.dev/ffmpeg/builds/).
+   - Extract it and add the `bin` directory, such as `C:\ffmpeg\bin`, to your system `PATH`.
+   - Verify with `ffmpeg -version` in PowerShell or CMD.
 
-### 🐧 Linux (Debian/Ubuntu)
-Install the dependencies via your package manager:
+### Linux (Debian/Ubuntu)
 ```bash
 sudo apt update
 sudo apt install python3-tk ffmpeg
 ```
-*(For Fedora, use `sudo dnf install python3-tkinter ffmpeg`)*
 
----
+For Fedora:
+```bash
+sudo dnf install python3-tkinter ffmpeg
+```
 
-## Setup & Running (All Platforms)
+## Setup
 
-1. **Clone or download the project**
-2. **Create and activate a virtual environment:**
+1. Create and activate a virtual environment:
    ```bash
    # macOS / Linux
    python3 -m venv .venv
@@ -49,16 +56,28 @@ sudo apt install python3-tk ffmpeg
    python -m venv .venv
    .venv\Scripts\activate
    ```
-3. **Install Python requirements:**
+
+2. Install Python requirements:
    ```bash
    pip install -r requirements.txt
    ```
-4. **Run the application:**
+
+3. Run the application:
    ```bash
    python main.py
    ```
 
-## Dependencies
-- `yt-dlp` - For downloading and processing YouTube content.
-- `tkinter` - For the graphical user interface.
-- `ffmpeg` - For media conversion and merging.
+## Quality Behavior
+- **Video / En Yüksek** uses the best video and best audio streams available, merged into MP4 when needed.
+- **Video / 2160p-360p** asks `yt-dlp` for the closest suitable resolution at or below the selected target when available.
+- **Audio / En Yüksek** extracts the best available audio stream and converts it to MP3 with the highest MP3 setting.
+- Lower audio bitrates are available when smaller files matter more than maximum quality.
+
+## Development
+
+Run the unit tests with:
+```bash
+python -m unittest discover -s tests
+```
+
+The test suite covers platform detection, YouTube-only transcript support, and `yt-dlp` option generation for audio and video quality choices.
